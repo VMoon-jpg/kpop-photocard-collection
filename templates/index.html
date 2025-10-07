@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✨ K-pop PC Collection ✨</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      min-height: 100vh;
+    }
+    .girly-gradient {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef  100%);
+    }
+    .girly-text {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef  100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #ff9a9e; /* Fallback for browsers that don't support background-clip */
+    }
+    .cute-shadow {
+      box-shadow: 0 8px 32px rgba(255, 182, 193, 0.3);
+    }
+    .sparkle {
+      animation: sparkle 2s infinite;
+    }
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(180deg); }
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+  <div class="min-h-screen flex">
+    <!-- Sidebar Filter -->
+    <div class="w-80 bg-white bg-opacity-90 backdrop-blur-sm cute-shadow p-6 overflow-y-auto">
+      <div class="girly-gradient p-4 rounded-2xl mb-6 text-white text-center">
+        <h2 class="text-2xl font-bold">
+          <i class="fas fa-heart sparkle mr-2"></i>
+          Filters
+          <i class="fas fa-star sparkle ml-2"></i>
+        </h2>
+      </div>
+
+      <!-- Search Bar in Sidebar -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-pink-600 mb-2">
+          <i class="fas fa-search mr-1"></i> Search Everything
+        </label>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Type anything cute... 💕" 
+          class="w-full p-3 border-2 border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+        >
+      </div>
+
+      <!-- Group Filter -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-pink-600 mb-2">
+          <i class="fas fa-users mr-1"></i> Groups
+        </label>
+        <div id="groupFilter" class="space-y-2 max-h-40 overflow-y-auto">
+          <!-- Groups will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Member Filter -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-pink-600 mb-2">
+          <i class="fas fa-user mr-1"></i> Members
+        </label>
+        <div id="memberFilter" class="space-y-2 max-h-40 overflow-y-auto">
+          <!-- Members will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Album Filter -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-pink-600 mb-2">
+          <i class="fas fa-compact-disc mr-1"></i> Albums
+        </label>
+        <div id="albumFilter" class="space-y-2 max-h-40 overflow-y-auto">
+          <!-- Albums will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Clear Filters -->
+      <button onclick="clearAllFilters()" class="w-full bg-pink-400 hover:bg-pink-500 text-white py-3 px-4 rounded-full font-semibold transition-all duration-200 transform hover:scale-105">
+        <i class="fas fa-times-circle mr-2"></i>
+        Clear All Filters
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6">
+      <div class="bg-white bg-opacity-90 backdrop-blur-sm rounded-3xl cute-shadow p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-5xl font-bold girly-text mb-2">
+            ✨ My Cute PC Collection ✨
+          </h1>
+          <p class="text-pink-500 text-lg">Collecting memories, one photocard at a time 💕</p>
+        </div>
+
+        <!-- Upload Button -->
+        <div class="mb-8 text-center">
+          <button 
+            onclick="toggleUploadForm()" 
+            class="girly-gradient hover:shadow-lg text-white px-8 py-4 rounded-full font-bold text-lg transition-all duration-200 transform hover:scale-105 cute-shadow"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            Add New Photocard ✨
+          </button>
+        </div>
+
+        <!-- Upload Form (Hidden by default) -->
+        <div id="uploadForm" class="hidden bg-pink-50 bg-opacity-90 backdrop-blur-sm p-8 rounded-3xl cute-shadow mb-8 border-2 border-pink-200">
+          <h2 class="text-3xl font-bold text-center mb-6 girly-text">
+            <i class="fas fa-sparkles mr-2"></i>
+            Add New Precious Card
+            <i class="fas fa-sparkles ml-2"></i>
+          </h2>
+          <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="relative">
+                <label class="block text-sm font-bold text-pink-600 mb-2">
+                  <i class="fas fa-users mr-1"></i> Group
+                </label>
+                <input type="text" name="group" id="groupInput" required autocomplete="off" class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
+                <div id="groupSuggestions" class="absolute z-20 bg-white border-2 border-pink-200 rounded-xl shadow-lg hidden max-h-32 overflow-y-auto w-full mt-1"></div>
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-pink-600 mb-2">
+                  <i class="fas fa-compact-disc mr-1"></i> Album
+                </label>
+                <input type="text" name="album" required class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-pink-600 mb-2">
+                  <i class="fas fa-user mr-1"></i> Member
+                </label>
+                <input type="text" name="member" required class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-pink-600 mb-2">
+                  <i class="fas fa-copy mr-1"></i> Copies
+                </label>
+                <input type="number" name="copies" min="1" value="1" class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
+              </div>
+            </div>
+            <div class="text-sm text-pink-600 bg-pink-100 bg-opacity-70 p-4 rounded-2xl border border-pink-200">
+              <strong><i class="fas fa-magic mr-2"></i>Magical Note:</strong> Tags will be automatically generated from your Group, Album, and Member info! ✨
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-pink-600 mb-2">
+                <i class="fas fa-image mr-1"></i> Photo
+              </label>
+              <input type="file" name="image" accept="image/*" required class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-100 file:text-pink-700 hover:file:bg-pink-200">
+            </div>
+            <div class="flex space-x-4 justify-center">
+              <button type="submit" class="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white px-8 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105 cute-shadow">
+                <i class="fas fa-upload mr-2"></i>
+                Upload Photocard ✨
+              </button>
+              <button type="button" onclick="toggleUploadForm()" class="bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white px-8 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105">
+                <i class="fas fa-times mr-2"></i>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Photo Cards Grid -->
+        <div id="cardsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
+          {{range $index, $card := .}}
+          <div class="card bg-white rounded-2xl cute-shadow hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-pink-100 cursor-pointer transform hover:scale-105 hover:-rotate-1" 
+               data-index="{{$index}}"
+               data-group="{{$card.Group}}" 
+               data-member="{{$card.Member}}" 
+               data-album="{{$card.Album}}" 
+               data-copies="{{$card.Copies}}"
+               data-image="{{$card.Image}}"
+               data-tags="{{range $card.Tags}}{{.}} {{end}}"
+               onclick="openEditModal(this)">
+            <div class="relative">
+              <img src="{{$card.Image}}" alt="{{$card.Member}}" class="w-full aspect-[55/85] object-cover">
+              <div class="absolute top-2 right-2 bg-pink-400 text-white px-2 py-1 rounded-full text-xs font-bold">
+                {{$card.Copies}}x
+              </div>
+            </div>
+            <div class="p-3 bg-gradient-to-b from-pink-50 to-white">
+              <h2 class="text-sm font-bold truncate text-pink-800">{{$card.Member}}</h2>
+              <p class="text-xs text-pink-600 truncate font-semibold">{{$card.Group}}</p>
+              <p class="text-xs text-pink-400 truncate">{{$card.Album}}</p>
+              <div class="mt-2 flex flex-wrap gap-1">
+                {{range $card.Tags}}
+                <span class="inline-block bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full font-medium">{{.}}</span>
+                {{end}}
+              </div>
+              <div class="mt-2 text-center">
+                <i class="fas fa-heart text-pink-300 text-xs"></i>
+              </div>
+            </div>
+          </div>
+          {{end}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit/Delete Modal -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white rounded-3xl cute-shadow p-8 w-96 max-w-lg border-4 border-pink-200">
+      <h2 class="text-3xl font-bold text-center mb-6 girly-text">
+        <i class="fas fa-edit mr-2"></i>
+        Edit Precious Card
+        <i class="fas fa-sparkles ml-2"></i>
+      </h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-pink-600 mb-2">
+            <i class="fas fa-users mr-1"></i> Group
+          </label>
+          <input type="text" id="editGroup" class="w-full p-3 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-pink-50">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-pink-600 mb-2">
+            <i class="fas fa-compact-disc mr-1"></i> Album
+          </label>
+          <input type="text" id="editAlbum" class="w-full p-3 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-pink-50">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-pink-600 mb-2">
+            <i class="fas fa-user mr-1"></i> Member
+          </label>
+          <input type="text" id="editMember" class="w-full p-3 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-pink-50">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-pink-600 mb-2">
+            <i class="fas fa-copy mr-1"></i> Copies
+          </label>
+          <input type="number" id="editCopies" min="1" class="w-full p-3 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-pink-50">
+        </div>
+      </div>
+      <div class="flex flex-col space-y-3 mt-8">
+        <button onclick="saveEdit()" class="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white px-6 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105 cute-shadow">
+          <i class="fas fa-save mr-2"></i>
+          Save Changes ✨
+        </button>
+        <button onclick="deleteCard()" class="w-full bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 text-white px-6 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105">
+          <i class="fas fa-trash mr-2"></i>
+          Delete Forever 💔
+        </button>
+        <button onclick="closeEditModal()" class="w-full bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white px-6 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105">
+          <i class="fas fa-times mr-2"></i>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* 
+     * K-pop Photocard Collection - Frontend JavaScript
+     * 
+     * This script handles:
+     * - Loading and filtering photocard data from the Go backend API
+     * - Sidebar filters for groups, members, and albums  
+     * - Search functionality across all card data
+     * - Auto-complete for group names during upload
+     * - Edit/Delete modal for existing photocards
+     * - Dynamic UI updates and user interactions
+     */
+
+    // Global state variables for filter management
+    let currentEditIndex = -1;  // Index of card being edited (-1 means no card selected)
+    let allGroups = [];         // All unique K-pop group names from the collection
+    let allMembers = [];        // All unique member names from the collection  
+    let allAlbums = [];         // All unique album names from the collection
+    let activeFilters = {       // Currently applied filters
+      groups: [],               // Selected group filters
+      members: [],              // Selected member filters
+      albums: []                // Selected album filters
+    };
+
+    // Load photocard data from the Go backend API for filter population
+    fetch('/api/cards')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(cards => {
+        console.log('API Response:', cards); // Debug: Check what data we receive
+        
+        // Extract unique values for filters (Go struct uses uppercase field names)
+        // Using fallback for both uppercase and lowercase to handle any API inconsistencies
+        const groups = [...new Set(cards.map(card => card.group || card.Group).filter(Boolean))];
+        const members = [...new Set(cards.map(card => card.member || card.Member).filter(Boolean))];
+        const albums = [...new Set(cards.map(card => card.album || card.Album).filter(Boolean))];
+        
+        // Store globally for use in other functions
+        allGroups = groups;
+        allMembers = members;
+        allAlbums = albums;
+        
+        console.log('Extracted filter data:', { groups, members, albums }); // Debug: Verify extraction
+        populateFilters(); // Build the filter UI elements
+      })
+      .catch(error => {
+        console.error('Error loading cards for filters:', error);
+        // Show user-friendly error message
+        document.getElementById('groupFilter').innerHTML = '<p class="text-red-500 text-sm">Error loading filters</p>';
+      });
+
+    /**
+     * Populate the filter sidebar with checkboxes for each unique group, member, and album
+     * Creates interactive checkbox elements that users can click to filter their collection
+     */
+    function populateFilters() {
+      // Create group filter checkboxes
+      const groupFilter = document.getElementById('groupFilter');
+      groupFilter.innerHTML = allGroups.map(group => `
+        <label class="flex items-center space-x-2 p-2 hover:bg-pink-100 rounded-lg cursor-pointer">
+          <input type="checkbox" value="${group}" onchange="toggleFilter('groups', '${group}')" class="text-pink-500 focus:ring-pink-400">
+          <span class="text-sm font-medium text-pink-700">${group}</span>
+        </label>
+      `).join('');
+
+      // Create member filter checkboxes  
+      const memberFilter = document.getElementById('memberFilter');
+      memberFilter.innerHTML = allMembers.map(member => `
+        <label class="flex items-center space-x-2 p-2 hover:bg-pink-100 rounded-lg cursor-pointer">
+          <input type="checkbox" value="${member}" onchange="toggleFilter('members', '${member}')" class="text-pink-500 focus:ring-pink-400">
+          <span class="text-sm font-medium text-pink-700">${member}</span>
+        </label>
+      `).join('');
+
+      // Create album filter checkboxes
+      const albumFilter = document.getElementById('albumFilter');
+      albumFilter.innerHTML = allAlbums.map(album => `
+        <label class="flex items-center space-x-2 p-2 hover:bg-pink-100 rounded-lg cursor-pointer">
+          <input type="checkbox" value="${album}" onchange="toggleFilter('albums', '${album}')" class="text-pink-500 focus:ring-pink-400">
+          <span class="text-sm font-medium text-pink-700">${album}</span>
+        </label>
+      `).join('');
+    }
+
+    /**
+     * Toggle a filter on/off when user clicks a checkbox
+     * @param {string} type - Filter type: 'groups', 'members', or 'albums'
+     * @param {string} value - The specific value to add/remove from the filter
+     */
+    function toggleFilter(type, value) {
+      const index = activeFilters[type].indexOf(value);
+      if (index > -1) {
+        // Remove from active filters if already selected
+        activeFilters[type].splice(index, 1);
+      } else {
+        // Add to active filters if not selected
+        activeFilters[type].push(value);
+      }
+      applyFilters(); // Update the displayed cards
+    }
+
+    /**
+     * Clear all active filters and reset the search bar
+     * Returns the collection to show all cards
+     */
+    function clearAllFilters() {
+      activeFilters = { groups: [], members: [], albums: [] };
+      // Uncheck all filter checkboxes
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      // Clear search input
+      document.getElementById('searchInput').value = '';
+      applyFilters(); // Refresh display to show all cards
+    }
+
+    /**
+     * Apply current search term and active filters to show/hide photocard elements
+     * This is the core filtering logic that runs whenever search or filters change
+     */
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.card'); // Get all photocard DOM elements
+      
+      cards.forEach(card => {
+        // Get card data from HTML data attributes
+        const group = card.getAttribute('data-group');
+        const member = card.getAttribute('data-member'); 
+        const album = card.getAttribute('data-album');
+        const tags = card.getAttribute('data-tags').toLowerCase();
+        
+        // Check if card matches search term (searches across all fields)
+        const matchesSearch = !searchTerm || 
+          group.toLowerCase().includes(searchTerm) || 
+          member.toLowerCase().includes(searchTerm) || 
+          album.toLowerCase().includes(searchTerm) || 
+          tags.includes(searchTerm);
+        
+        // Check if card matches active filters (empty filter = show all)
+        const matchesGroupFilter = activeFilters.groups.length === 0 || activeFilters.groups.includes(group);
+        const matchesMemberFilter = activeFilters.members.length === 0 || activeFilters.members.includes(member);
+        const matchesAlbumFilter = activeFilters.albums.length === 0 || activeFilters.albums.includes(album);
+        
+        // Card is visible only if it matches search AND all active filters
+        const isVisible = matchesSearch && matchesGroupFilter && matchesMemberFilter && matchesAlbumFilter;
+        
+        // Show or hide the card based on filter results
+        if (isVisible) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    /**
+     * Toggle the visibility of the upload form when user clicks "Add New Photocard"
+     */
+    function toggleUploadForm() {
+      const form = document.getElementById('uploadForm');
+      form.classList.toggle('hidden');
+    }
+
+    // Auto-complete functionality for group names during upload
+    document.getElementById('groupInput').addEventListener('input', function(e) {
+      const input = e.target.value.toLowerCase();
+      const suggestions = document.getElementById('groupSuggestions');
+      
+      if (input.length === 0) {
+        suggestions.classList.add('hidden');
+        return;
+      }
+
+      // Filter existing groups that match the current input
+      const filteredGroups = allGroups.filter(group => 
+        group.toLowerCase().includes(input)
+      );
+
+      if (filteredGroups.length > 0) {
+        // Show matching groups as clickable suggestions
+        suggestions.innerHTML = filteredGroups.map(group => 
+          `<div class="p-2 hover:bg-pink-100 cursor-pointer rounded" onclick="selectGroup('${group}')">${group}</div>`
+        ).join('');
+        suggestions.classList.remove('hidden');
+      } else {
+        suggestions.classList.add('hidden');
+      }
+    });
+
+    /**
+     * Select a group from auto-complete suggestions
+     * @param {string} group - The group name to select
+     */
+    function selectGroup(group) {
+      document.getElementById('groupInput').value = group;
+      document.getElementById('groupSuggestions').classList.add('hidden');
+    }
+
+    // Hide auto-complete suggestions when clicking outside the input
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#groupInput') && !e.target.closest('#groupSuggestions')) {
+        document.getElementById('groupSuggestions').classList.add('hidden');
+      }
+    });
+
+    // Attach search functionality to the search input field
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+    // === EDIT/DELETE MODAL FUNCTIONS ===
+
+    /**
+     * Open the edit modal for a specific photocard
+     * @param {HTMLElement} cardElement - The DOM element of the card being edited
+     */
+    function openEditModal(cardElement) {
+      // Store the index for API calls
+      currentEditIndex = parseInt(cardElement.getAttribute('data-index'));
+      
+      // Populate the edit form with current card data
+      document.getElementById('editGroup').value = cardElement.getAttribute('data-group');
+      document.getElementById('editAlbum').value = cardElement.getAttribute('data-album');
+      document.getElementById('editMember').value = cardElement.getAttribute('data-member');
+      document.getElementById('editCopies').value = cardElement.getAttribute('data-copies');
+      
+      // Show the modal
+      document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    /**
+     * Close the edit modal and reset the current edit index
+     */
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      currentEditIndex = -1;
+    }
+
+    /**
+     * Save the edited photocard data to the backend
+     * Sends a POST request to /api/update with the new card data
+     */
+    function saveEdit() {
+      const updatedCard = {
+        group: document.getElementById('editGroup').value,
+        album: document.getElementById('editAlbum').value,
+        member: document.getElementById('editMember').value,
+        copies: parseInt(document.getElementById('editCopies').value),
+        image: document.querySelector(`[data-index="${currentEditIndex}"]`).getAttribute('data-image'),
+        tags: []
+      };
+
+      // Auto-generate tags from the form data (same logic as backend)
+      if (updatedCard.group) updatedCard.tags.push('#' + updatedCard.group.replace(/\s/g, ''));
+      if (updatedCard.album) updatedCard.tags.push('#' + updatedCard.album.replace(/\s/g, ''));
+      if (updatedCard.member) updatedCard.tags.push('#' + updatedCard.member.replace(/\s/g, ''));
+
+      // Send update request to Go backend
+      fetch('/api/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ index: currentEditIndex, card: updatedCard })
+      })
+      .then(response => {
+        if (response.ok) {
+          location.reload(); // Refresh page to show updated data
+        } else {
+          alert('Error updating card');
+        }
+      });
+    }
+
+    /**
+     * Delete a photocard after user confirmation
+     * Sends a DELETE request to the backend API
+     */
+    function deleteCard() {
+      if (confirm('Are you sure you want to delete this photocard? 💔')) {
+        fetch('/api/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ index: currentEditIndex })
+        })
+        .then(response => {
+          if (response.ok) {
+            location.reload(); // Refresh page to show updated collection
+          } else {
+            alert('Error deleting card');
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
