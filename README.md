@@ -50,34 +50,51 @@ kpop-pc-site/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Go 1.16 or higher** ([Download Go](https://golang.org/dl/))
-- **A modern web browser** (Chrome, Firefox, Safari, Edge)
-- **Some cute photocard images** to upload! 📸
+- **Go 1.16+** installed on your system
+- **Web browser** (Chrome, Firefox, Safari, etc.)
 
 ### Installation
 
-1. **Clone or download this repository**
-   ```bash
-   git clone <repository-url>
-   cd kpop-pc-site
-   ```
+1. **Clone the repository**:
+```bash
+git clone https://github.com/VMoon-jpg/kpop-photocard-collection.git
+cd kpop-photocard-collection
+```
 
-2. **Create necessary directories**
-   ```bash
-   mkdir -p static templates
-   ```
+2. **Easy Setup** (Run the setup script):
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+   Or do it manually:
+   
+3. **Manual Setup**:
+```bash
+# Copy sample data for a quick start (optional)
+cp sample-cards.jsonl cards.jsonl
 
-3. **Start the server**
-   ```bash
-   go run main.go
-   ```
+# Create directory for uploads
+mkdir -p static
+```
 
-4. **Open your browser and visit**
-   ```
-   http://localhost:8080
-   ```
+4. **Run the server**:
+```bash
+go run main.go
+```
 
-5. **Start collecting! 🎉**
+5. **Open your browser**:
+   Visit `http://localhost:8080` and start building your collection! 🎉
+
+### 📄 Sample Data Included!
+
+This repository comes with `sample-cards.jsonl` containing example photocards from popular groups like:
+- 🌟 **Stray Kids** (Felix - ATE album)
+- 💕 **TWICE** (Chaeyoung - Formula of Love)
+- ✨ **LE SSERAFIM** (Sakura - ANTIFRAGILE)
+- 🌸 **IZ*ONE** (Sakura - HEART*IZ)  
+- 🔥 **ATEEZ** (Mingi - THE WORLD EP.1)
+
+The app will automatically copy this sample data to `cards.jsonl` if you don't have your own collection yet! Perfect for testing features before adding your own precious cards! 💖
 
 ### First Time Setup
 
