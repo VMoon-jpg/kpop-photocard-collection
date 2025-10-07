@@ -2,7 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=de      <div class="hidden lg:block girly-gradient p-4 rounded-2xl mb-6 text-white text-center">
+        <h2 clas        <!-- Upload Form (Hidden by default) -->
+        {{if .IsAuthenticated}}
+        <div id="uploadForm" class="hidden bg-pink-50 bg-opacity-90 backdrop-blur-sm p-4 lg:p-8 rounded-3xl cute-shadow mb-6 lg:mb-8 border-2 border-pink-200">"text-2xl font-bold">
+          <i class="fas fa-heart sparkle mr-2"></i>
+          Filters
+          <i class="fas fa-heart sparkle ml-2"></i>
+        </h2>
+        <div class="mt-4 flex justify-center">
+          {{if .IsAuthenticated}}
+          <a href="/logout" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-full text-sm font-semibold transition-all">
+            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+          </a>
+          {{else}}
+          <a href="/login" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-full text-sm font-semibold transition-all">
+            <i class="fas fa-sign-in-alt mr-1"></i>Login to Edit
+          </a>
+          {{end}}
+        </div>
+      </div>dth, initial-scale=1.0" />
   <title>✨ K-pop PC Collection ✨</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -72,12 +91,23 @@
         <i class="fas fa-bars"></i>
       </button>
       <h1 class="text-xl font-bold girly-text">✨ PC Collection ✨</h1>
-      <button 
-        onclick="toggleUploadForm()" 
-        class="text-pink-600 hover:text-pink-800 text-2xl touch-target"
-      >
-        <i class="fas fa-plus"></i>
-      </button>
+      <div class="flex items-center space-x-2">
+        {{if .IsAuthenticated}}
+        <button 
+          onclick="toggleUploadForm()" 
+          class="text-pink-600 hover:text-pink-800 text-2xl touch-target"
+        >
+          <i class="fas fa-plus"></i>
+        </button>
+        <a href="/logout" class="text-pink-600 hover:text-pink-800 text-xl touch-target">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+        {{else}}
+        <a href="/login" class="text-pink-600 hover:text-pink-800 text-xl touch-target">
+          <i class="fas fa-sign-in-alt"></i>
+        </a>
+        {{end}}
+      </div>
     </div>
   </div>
 
@@ -164,6 +194,7 @@
         </div>
 
         <!-- Upload Button (Hidden on mobile - shown in navbar) -->
+        {{if .IsAuthenticated}}
         <div class="mb-6 lg:mb-8 text-center hidden lg:block">
           <button 
             onclick="toggleUploadForm()" 
@@ -173,6 +204,20 @@
             Add New Photocard ✨
           </button>
         </div>
+        {{else}}
+        <div class="mb-6 lg:mb-8 text-center hidden lg:block">
+          <div class="bg-pink-100 border-2 border-pink-200 rounded-2xl p-6">
+            <p class="text-pink-600 font-semibold mb-4">
+              <i class="fas fa-lock mr-2"></i>
+              Want to add photocards to this collection?
+            </p>
+            <a href="/login" class="girly-gradient hover:shadow-lg text-white px-6 py-3 rounded-full font-bold transition-all duration-200 transform hover:scale-105 cute-shadow">
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Login to Edit ✨
+            </a>
+          </div>
+        </div>
+        {{end}}
 
         <!-- Upload Form (Hidden by default) -->
         <div id="uploadForm" class="hidden bg-pink-50 bg-opacity-90 backdrop-blur-sm p-8 rounded-3xl cute-shadow mb-8 border-2 border-pink-200">
@@ -230,10 +275,11 @@
             </div>
           </form>
         </div>
+        {{end}}
 
         <!-- Photo Cards Grid -->
         <div id="cardsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 lg:gap-4">
-          {{range $index, $card := .}}
+          {{range $index, $card := .Cards}}
           <div class="card bg-white rounded-2xl cute-shadow hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-pink-100 cursor-pointer transform hover:scale-105 hover:-rotate-1" 
                data-index="{{$index}}"
                data-group="{{$card.Group}}" 

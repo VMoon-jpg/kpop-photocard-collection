@@ -20,8 +20,6 @@ Created: October 2025
 package main
 
 import (
-	"os"
-	"strings"
 	"bufio"          // For reading files line by line
 	"encoding/json"  // For JSON marshaling/unmarshaling
 	"fmt"           // For string formatting
@@ -464,33 +462,28 @@ func main() {
 		
 		// Render HTML template with photocard data
 		// The template uses Go's template syntax to iterate over cards
-		tmpl.Execute(w, cards)
+		templateData := TemplateData{Cards: cards, IsAuthenticated: isAuthenticated(r)}
+		tmpl.Execute(w, templateData)
 	})
 
 	// Photo upload route - handles new photocard submissions
-	http.HandleFunc("/upload", uploadHandler)
+	http.HandleFunc("/upload", requireAuth(uploadHandler))
 
 	// API routes - provides JSON endpoints for frontend JavaScript
-	http.HandleFunc("/api/", apiHandler)
+	http.HandleFunc("/api/", requireAuth(apiHandler))
+
+	// Authentication routes
+	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/logout", logoutHandler)
 
 	// Start HTTP server and log startup message
 	log.Println("🌸 K-pop Photocard Collection Server Started! 🌸")
-	log.Println("📍 Server running at: http://localhost:" + getPort()")
+	log.Println("📍 Server running at: http://localhost:8080")
 	log.Println("📁 Images stored in: ./static/")
 	log.Println("💾 Database file: ./cards.jsonl")
 	log.Println("✨ Ready to collect some precious photocards! ✨")
 	
 	// ListenAndServe blocks forever, serving HTTP requests
 	// log.Fatal will print any server startup errors and exit
-	log.Fatal(http.ListenAndServe(":" + getPort()", nil))
-}package main
-
-import "os"
-
-func getPort() string {
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "8080"
-    }
-    return ":" + port
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
