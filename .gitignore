@@ -1,8 +1,10 @@
 # 🌸 K-pop PC Collection - Git Ignore File 🌸
 
 # Personal collection data (each user will have their own)
-cards.jsonl
-*.jsonl
+# Note: sample-cards.jsonl is included as reference data
+# cards.jsonl will be ignored to protect personal collections
+my-cards.jsonl
+personal-*.jsonl
 
 # Uploaded photocard images (personal collection files)  
 static/
