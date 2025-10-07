@@ -9,9 +9,10 @@ Features:
 - Upload and store photocard images
 - Automatic tag generation based on group, album, and member
 - Search and filter functionality
-- Edit and delete existing photocards  
+- Edit and delete existing photocards
 - JSONL database storage for simplicity
 - Responsive web interface with "girly pop" aesthetic
+- User authentication system
 
 Author: Your Name
 Created: October 2025
@@ -20,8 +21,10 @@ Created: October 2025
 package main
 
 import (
-	"bufio"          // For reading files line by line
-	"encoding/json"  // For JSON marshaling/unmarshaling
+	"bufio"         // For reading files line by line
+	"crypto/rand"   // For secure session generation
+	"encoding/hex"  // For hex encoding
+	"encoding/json" // For JSON marshaling/unmarshaling
 	"fmt"           // For string formatting
 	"html/template" // For HTML template rendering
 	"io"            // For file copying operations
@@ -34,6 +37,21 @@ import (
 	"time"          // For timestamp generation
 )
 
+// Simple in-memory session store
+var activeSessions = make(map[string]bool)
+
+// Configuration - you can change these
+const (
+	USERNAME = "admin"   // Change this to your preferred username
+	PASSWORD = "kpop123" // Change this to your preferred password
+)
+
+// Template data structure
+type TemplateData struct {
+	Cards           []PhotoCard `json:"cards"`
+	IsAuthenticated bool        `json:"is_authenticated"`
+}
+
 /*
 PhotoCard represents a single K-pop photocard in our collection.
 Each card contains metadata about the idol, album, and associated image.
@@ -42,11 +60,156 @@ The JSON tags ensure proper serialization when sending data to the frontend.
 */
 type PhotoCard struct {
 	Group  string   `json:"group"`  // K-pop group name (e.g., "ATEEZ", "NewJeans")
-	Album  string   `json:"album"`  // Album name (e.g., "Zero : Fever Pt.2")  
+	Album  string   `json:"album"`  // Album name (e.g., "Zero : Fever Pt.2")
 	Member string   `json:"member"` // Member/idol name (e.g., "Mingi", "Hanni")
 	Copies int      `json:"copies"` // Number of copies owned (default: 1)
 	Image  string   `json:"image"`  // Path to uploaded image file
 	Tags   []string `json:"tags"`   // Auto-generated hashtags for searchability
+}
+
+// Generate secure session ID
+func generateSessionID() string {
+	bytes := make([]byte, 32)
+	rand.Read(bytes)
+	return hex.EncodeToString(bytes)
+}
+
+// Check if user is authenticated
+func isAuthenticated(r *http.Request) bool {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		return false
+	}
+	return activeSessions[cookie.Value]
+}
+
+// Login handler
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// Show login form
+		tmpl := `<!DOCTYPE html>
+<html>
+<head>
+    <title>✨ Login to PC Collection ✨</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .girly-gradient { background: linear-gradient(135deg, #ff6b9d, #c44569, #f8b500, #ff9ff3); }
+        .cute-shadow { box-shadow: 0 10px 25px rgba(255, 107, 157, 0.3); }
+        body { background: linear-gradient(135deg, #ffeef8, #e8f4ff, #fff0f8); min-height: 100vh; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="bg-white bg-opacity-90 backdrop-blur-sm rounded-3xl cute-shadow p-8 w-full max-w-md">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4">
+                <span class="girly-gradient bg-clip-text text-transparent">
+                    ✨ Login ✨
+                </span>
+            </h1>
+            <p class="text-pink-600">Access your photocard collection</p>
+        </div>
+        
+        <form method="POST" class="space-y-6">
+            <div>
+                <label class="block text-pink-600 font-bold mb-2">
+                    <i class="fas fa-user mr-2"></i>Username
+                </label>
+                <input type="text" name="username" required 
+                       class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400">
+            </div>
+            
+            <div>
+                <label class="block text-pink-600 font-bold mb-2">
+                    <i class="fas fa-lock mr-2"></i>Password
+                </label>
+                <input type="password" name="password" required 
+                       class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400">
+            </div>
+            
+            <button type="submit" 
+                    class="w-full girly-gradient text-white py-4 rounded-2xl font-bold text-lg transition-all duration-200 transform hover:scale-105 cute-shadow">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login ✨
+            </button>
+        </form>
+        
+        <div class="text-center mt-6">
+            <a href="/" class="text-pink-500 hover:text-pink-700">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Collection
+            </a>
+        </div>
+    </div>
+</body>
+</html>`
+
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(w, tmpl)
+		return
+	}
+
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		password := r.FormValue("password")
+
+		if username == USERNAME && password == PASSWORD {
+			// Create session
+			sessionID := generateSessionID()
+			activeSessions[sessionID] = true
+
+			// Set session cookie
+			http.SetCookie(w, &http.Cookie{
+				Name:     "session_id",
+				Value:    sessionID,
+				Path:     "/",
+				HttpOnly: true,
+				Secure:   false, // Set to true in production with HTTPS
+				MaxAge:   86400, // 24 hours
+			})
+
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		} else {
+			http.Redirect(w, r, "/login?error=1", http.StatusSeeOther)
+		}
+	}
+}
+
+// Logout handler
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("session_id")
+	if err == nil {
+		delete(activeSessions, cookie.Value)
+	}
+
+	// Clear cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:   "session_id",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	})
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Authentication middleware
+func requireAuth(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !isAuthenticated(r) {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		handler(w, r)
+	}
+}
+
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	return ":" + port
 }
 
 /*
@@ -71,7 +234,7 @@ func loadCards(filename string) ([]PhotoCard, error) {
 
 	var cards []PhotoCard
 	scanner := bufio.NewScanner(file)
-	
+
 	// Read file line by line
 	for scanner.Scan() {
 		var card PhotoCard
@@ -83,7 +246,7 @@ func loadCards(filename string) ([]PhotoCard, error) {
 		}
 		cards = append(cards, card)
 	}
-	
+
 	// Return any scanning errors
 	return cards, scanner.Err()
 }
@@ -137,7 +300,8 @@ Parameters:
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	// Only accept POST requests for security
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", 405)
+		// Redirect GET requests to home page where upload form is located
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -150,9 +314,9 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract form field values
-	group := r.FormValue("group")   // K-pop group name
-	album := r.FormValue("album")   // Album name  
-	member := r.FormValue("member") // Member name
+	group := r.FormValue("group")      // K-pop group name
+	album := r.FormValue("album")      // Album name
+	member := r.FormValue("member")    // Member name
 	copiesStr := r.FormValue("copies") // Number of copies (as string)
 
 	// Convert copies string to integer, default to 1 if invalid
@@ -281,7 +445,7 @@ func deleteCard(index int) error {
 
 	// Remove card at specified index using slice operations
 	// cards[:index] = elements before index
-	// cards[index+1:] = elements after index  
+	// cards[index+1:] = elements after index
 	cards = append(cards[:index], cards[index+1:]...)
 
 	// Rewrite entire JSONL file with remaining cards
@@ -352,7 +516,7 @@ This provides RESTful endpoints for the frontend JavaScript to interact with.
 
 Supported endpoints:
 - GET /api/groups - Returns unique group names for auto-complete
-- GET /api/cards - Returns all photocard data for filtering 
+- GET /api/cards - Returns all photocard data for filtering
 - POST /api/delete - Deletes a specific photocard by index
 - POST /api/update - Updates a specific photocard by index
 
@@ -377,7 +541,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			// Encode groups slice as JSON response
 			json.NewEncoder(w).Encode(groups)
 		}
-		
+
 	case "/api/cards":
 		// Handle request for all photocard data (used by filters)
 		if r.Method == "GET" {
@@ -389,7 +553,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			// Encode cards slice as JSON response
 			json.NewEncoder(w).Encode(cards)
 		}
-		
+
 	case "/api/delete":
 		// Handle photocard deletion request
 		if r.Method == "POST" {
@@ -401,7 +565,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Invalid request", 400)
 				return
 			}
-			
+
 			// Delete the specified card
 			if err := deleteCard(req.Index); err != nil {
 				http.Error(w, "Error deleting card", 500)
@@ -409,7 +573,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			w.WriteHeader(200) // Success response
 		}
-		
+
 	case "/api/update":
 		// Handle photocard update request
 		if r.Method == "POST" {
@@ -422,7 +586,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Invalid request", 400)
 				return
 			}
-			
+
 			// Update the specified card with new data
 			if err := updateCard(req.Index, req.Card); err != nil {
 				http.Error(w, "Error updating card", 500)
@@ -430,7 +594,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			w.WriteHeader(200) // Success response
 		}
-		
+
 	default:
 		// Unknown API endpoint
 		http.NotFound(w, r)
@@ -459,11 +623,23 @@ func main() {
 			http.Error(w, "Error loading cards", 500)
 			return
 		}
-		
-		// Render HTML template with photocard data
-		// The template uses Go's template syntax to iterate over cards
-		templateData := TemplateData{Cards: cards, IsAuthenticated: isAuthenticated(r)}
-		tmpl.Execute(w, templateData)
+
+		// Check if user is authenticated
+		userAuthenticated := isAuthenticated(r)
+
+		// Create template data with both cards and authentication status
+		templateData := TemplateData{
+			Cards:           cards,
+			IsAuthenticated: userAuthenticated,
+		}
+
+		// Render HTML template with complete data
+		err = tmpl.Execute(w, templateData)
+		if err != nil {
+			log.Printf("Template execution error: %v", err)
+			http.Error(w, "Template error", 500)
+			return
+		}
 	})
 
 	// Photo upload route - handles new photocard submissions
@@ -476,14 +652,17 @@ func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/logout", logoutHandler)
 
+	// Get port from environment or use default
+	port := getPort()
+
 	// Start HTTP server and log startup message
 	log.Println("🌸 K-pop Photocard Collection Server Started! 🌸")
-	log.Println("📍 Server running at: http://localhost:8080")
+	log.Printf("📍 Server running at: http://localhost%s", port)
 	log.Println("📁 Images stored in: ./static/")
 	log.Println("💾 Database file: ./cards.jsonl")
 	log.Println("✨ Ready to collect some precious photocards! ✨")
-	
+
 	// ListenAndServe blocks forever, serving HTTP requests
 	// log.Fatal will print any server startup errors and exit
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(port, nil))
 }

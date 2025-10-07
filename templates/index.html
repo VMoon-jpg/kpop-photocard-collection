@@ -2,26 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=de      <div class="hidden lg:block girly-gradient p-4 rounded-2xl mb-6 text-white text-center">
-        <h2 clas        <!-- Upload Form (Hidden by default) -->
-        {{if .IsAuthenticated}}
-        <div id="uploadForm" class="hidden bg-pink-50 bg-opacity-90 backdrop-blur-sm p-4 lg:p-8 rounded-3xl cute-shadow mb-6 lg:mb-8 border-2 border-pink-200">"text-2xl font-bold">
-          <i class="fas fa-heart sparkle mr-2"></i>
-          Filters
-          <i class="fas fa-heart sparkle ml-2"></i>
-        </h2>
-        <div class="mt-4 flex justify-center">
-          {{if .IsAuthenticated}}
-          <a href="/logout" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-full text-sm font-semibold transition-all">
-            <i class="fas fa-sign-out-alt mr-1"></i>Logout
-          </a>
-          {{else}}
-          <a href="/login" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-full text-sm font-semibold transition-all">
-            <i class="fas fa-sign-in-alt mr-1"></i>Login to Edit
-          </a>
-          {{end}}
-        </div>
-      </div>dth, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>✨ K-pop PC Collection ✨</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -50,82 +31,62 @@
       0%, 100% { transform: scale(1) rotate(0deg); }
       50% { transform: scale(1.1) rotate(180deg); }
     }
-    /* Mobile-specific styles */
-    /* Mobile sidebar transforms - only apply on smaller screens */
-    @media (max-width: 1023px) {
-      .mobile-sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
+    
+    /* Mobile sidebar specific styles */
+    @media (max-width: 767px) {
+      #sidebar {
+        width: 280px !important;
+        max-width: 80vw !important;
+        top: 56px !important; /* Account for mobile header */
       }
-      .mobile-sidebar.open {
-        transform: translateX(0);
-      }
-    }
-    /* Desktop sidebar - always visible */
-    @media (min-width: 1024px) {
-      .mobile-sidebar {
+      
+      #sidebar.sidebar-open {
         transform: translateX(0) !important;
-        transition: none;
       }
-    }
-    .mobile-overlay {
-      transition: opacity 0.3s ease-in-out;
-    }
-    /* Better touch targets for mobile */
-    @media (max-width: 768px) {
-      .touch-target {
-        min-height: 44px;
-        min-width: 44px;
+      
+      #sidebar.sidebar-closed {
+        transform: translateX(-100%) !important;
+      }
+      
+      /* Ensure mobile header stays on top */
+      .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 60;
       }
     }
   </style>
 </head>
 <body class="text-gray-800">
-  <!-- Mobile Navigation Bar -->
-  <div class="lg:hidden bg-white bg-opacity-90 backdrop-blur-sm cute-shadow p-4 sticky top-0 z-40">
+  <!-- Mobile Menu Toggle -->
+  <div class="md:hidden mobile-header fixed top-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-sm cute-shadow z-50 px-4 py-3">
     <div class="flex items-center justify-between">
-      <button 
-        onclick="toggleMobileSidebar()" 
-        class="text-pink-600 hover:text-pink-800 text-2xl touch-target"
-      >
-        <i class="fas fa-bars"></i>
+      <button id="mobileMenuToggle" class="girly-gradient text-white p-2 rounded-lg cute-shadow flex items-center justify-center">
+        <div class="space-y-1">
+          <div class="w-5 h-0.5 bg-white"></div>
+          <div class="w-5 h-0.5 bg-white"></div>
+          <div class="w-5 h-0.5 bg-white"></div>
+        </div>
       </button>
-      <h1 class="text-xl font-bold girly-text">✨ PC Collection ✨</h1>
-      <div class="flex items-center space-x-2">
-        {{if .IsAuthenticated}}
-        <button 
-          onclick="toggleUploadForm()" 
-          class="text-pink-600 hover:text-pink-800 text-2xl touch-target"
-        >
-          <i class="fas fa-plus"></i>
-        </button>
-        <a href="/logout" class="text-pink-600 hover:text-pink-800 text-xl touch-target">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-        {{else}}
-        <a href="/login" class="text-pink-600 hover:text-pink-800 text-xl touch-target">
-          <i class="fas fa-sign-in-alt"></i>
-        </a>
-        {{end}}
-      </div>
+      <h1 class="text-lg font-bold girly-text">PC Collection</h1>
+      <div class="w-9"></div> <!-- Spacer to center title -->
     </div>
   </div>
 
-  <!-- Mobile Overlay -->
-  <div id="mobileOverlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden mobile-overlay" onclick="closeMobileSidebar()"></div>
-
   <div class="min-h-screen flex">
     <!-- Sidebar Filter -->
-    <div id="sidebar" class="fixed lg:relative lg:w-80 w-80 bg-white bg-opacity-90 backdrop-blur-sm cute-shadow p-4 lg:p-6 overflow-y-auto h-full z-40 mobile-sidebar lg:transform-none">
-      <!-- Close button for mobile -->
-      <div class="lg:hidden flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold girly-text">Filters</h2>
-        <button onclick="closeMobileSidebar()" class="text-pink-600 hover:text-pink-800 text-xl touch-target">
+    <div id="sidebar" class="fixed md:relative top-14 md:top-0 bottom-0 md:inset-y-0 left-0 md:translate-x-0 -translate-x-full md:w-80 w-80 bg-white bg-opacity-95 backdrop-blur-sm cute-shadow p-6 overflow-y-auto z-40 transition-transform duration-300 ease-in-out">
+      <!-- Mobile Close Button -->
+      <div class="md:hidden flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-pink-600">Filters</h3>
+        <button id="closeSidebar" class="text-pink-600 text-xl">
           <i class="fas fa-times"></i>
         </button>
       </div>
       
-      <div class="hidden lg:block girly-gradient p-4 rounded-2xl mb-6 text-white text-center">
+      <div class="girly-gradient p-4 rounded-2xl mb-6 text-white text-center hidden md:block">
         <h2 class="text-2xl font-bold">
           <i class="fas fa-heart sparkle mr-2"></i>
           Filters
@@ -183,75 +144,63 @@
       </button>
     </div>
 
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="md:hidden hidden fixed top-14 bottom-0 left-0 right-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300"></div>
+
     <!-- Main Content -->
-    <div class="flex-1 p-3 lg:p-6">
-      <div class="bg-white bg-opacity-90 backdrop-blur-sm rounded-3xl cute-shadow p-4 lg:p-8">
-        <div class="text-center mb-6 lg:mb-8">
-          <h1 class="text-3xl lg:text-5xl font-bold girly-text mb-2">
+    <div class="flex-1 p-4 md:p-6 pt-16 md:pt-6">
+      <div class="bg-white bg-opacity-90 backdrop-blur-sm rounded-3xl cute-shadow p-4 md:p-8">
+        <div class="text-center mb-6 md:mb-8">
+          <h1 class="text-3xl md:text-5xl font-bold girly-text mb-2">
             ✨ My Cute PC Collection ✨
           </h1>
-          <p class="text-pink-500 text-base lg:text-lg">Collecting memories, one photocard at a time 💕</p>
+          <p class="text-pink-500 text-base md:text-lg">Collecting memories, one photocard at a time 💕</p>
         </div>
 
-        <!-- Upload Button (Hidden on mobile - shown in navbar) -->
-        {{if .IsAuthenticated}}
-        <div class="mb-6 lg:mb-8 text-center hidden lg:block">
+        <!-- Upload Button -->
+        <div class="mb-6 md:mb-8 text-center">
           <button 
             onclick="toggleUploadForm()" 
-            class="girly-gradient hover:shadow-lg text-white px-6 lg:px-8 py-3 lg:py-4 rounded-full font-bold text-base lg:text-lg transition-all duration-200 transform hover:scale-105 cute-shadow touch-target"
+            class="girly-gradient hover:shadow-lg text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-base md:text-lg transition-all duration-200 transform hover:scale-105 cute-shadow"
           >
             <i class="fas fa-plus mr-2"></i>
             Add New Photocard ✨
           </button>
         </div>
-        {{else}}
-        <div class="mb-6 lg:mb-8 text-center hidden lg:block">
-          <div class="bg-pink-100 border-2 border-pink-200 rounded-2xl p-6">
-            <p class="text-pink-600 font-semibold mb-4">
-              <i class="fas fa-lock mr-2"></i>
-              Want to add photocards to this collection?
-            </p>
-            <a href="/login" class="girly-gradient hover:shadow-lg text-white px-6 py-3 rounded-full font-bold transition-all duration-200 transform hover:scale-105 cute-shadow">
-              <i class="fas fa-sign-in-alt mr-2"></i>
-              Login to Edit ✨
-            </a>
-          </div>
-        </div>
-        {{end}}
 
         <!-- Upload Form (Hidden by default) -->
-        <div id="uploadForm" class="hidden bg-pink-50 bg-opacity-90 backdrop-blur-sm p-8 rounded-3xl cute-shadow mb-8 border-2 border-pink-200">
-          <h2 class="text-3xl font-bold text-center mb-6 girly-text">
+        <div id="uploadForm" class="hidden bg-pink-50 bg-opacity-90 backdrop-blur-sm p-4 md:p-8 rounded-3xl cute-shadow mb-6 md:mb-8 border-2 border-pink-200">
+          <h2 class="text-2xl md:text-3xl font-bold text-center mb-4 md:mb-6 girly-text">
             <i class="fas fa-sparkles mr-2"></i>
             Add New Precious Card
             <i class="fas fa-sparkles ml-2"></i>
           </h2>
-          <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-4 md:space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div class="relative">
                 <label class="block text-sm font-bold text-pink-600 mb-2">
                   <i class="fas fa-users mr-1"></i> Group
                 </label>
-                <input type="text" name="group" id="groupInput" required autocomplete="off" class="w-full p-3 lg:p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white touch-target">
+                <input type="text" name="group" id="groupInput" required autocomplete="off" class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
                 <div id="groupSuggestions" class="absolute z-20 bg-white border-2 border-pink-200 rounded-xl shadow-lg hidden max-h-32 overflow-y-auto w-full mt-1"></div>
               </div>
               <div>
                 <label class="block text-sm font-bold text-pink-600 mb-2">
                   <i class="fas fa-compact-disc mr-1"></i> Album
                 </label>
-                <input type="text" name="album" required class="w-full p-3 lg:p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white touch-target">
+                <input type="text" name="album" required class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
               </div>
               <div>
                 <label class="block text-sm font-bold text-pink-600 mb-2">
                   <i class="fas fa-user mr-1"></i> Member
                 </label>
-                <input type="text" name="member" required class="w-full p-3 lg:p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white touch-target">
+                <input type="text" name="member" required class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
               </div>
               <div>
                 <label class="block text-sm font-bold text-pink-600 mb-2">
                   <i class="fas fa-copy mr-1"></i> Copies
                 </label>
-                <input type="number" name="copies" min="1" value="1" class="w-full p-3 lg:p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white touch-target">
+                <input type="number" name="copies" min="1" value="1" class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white">
               </div>
             </div>
             <div class="text-sm text-pink-600 bg-pink-100 bg-opacity-70 p-4 rounded-2xl border border-pink-200">
@@ -261,24 +210,23 @@
               <label class="block text-sm font-bold text-pink-600 mb-2">
                 <i class="fas fa-image mr-1"></i> Photo
               </label>
-              <input type="file" name="image" accept="image/*" required class="w-full p-3 lg:p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-100 file:text-pink-700 hover:file:bg-pink-200 touch-target">
+              <input type="file" name="image" accept="image/*" required class="w-full p-4 border-2 border-pink-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-100 file:text-pink-700 hover:file:bg-pink-200">
             </div>
-            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center">
-              <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105 cute-shadow touch-target">
+            <div class="flex space-x-4 justify-center">
+              <button type="submit" class="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white px-8 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105 cute-shadow">
                 <i class="fas fa-upload mr-2"></i>
                 Upload Photocard ✨
               </button>
-              <button type="button" onclick="toggleUploadForm()" class="w-full sm:w-auto bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105 touch-target">
+              <button type="button" onclick="toggleUploadForm()" class="bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white px-8 py-4 rounded-full font-bold transition-all duration-200 transform hover:scale-105">
                 <i class="fas fa-times mr-2"></i>
                 Cancel
               </button>
             </div>
           </form>
         </div>
-        {{end}}
 
         <!-- Photo Cards Grid -->
-        <div id="cardsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 lg:gap-4">
+        <div id="cardsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 md:gap-4">
           {{range $index, $card := .Cards}}
           <div class="card bg-white rounded-2xl cute-shadow hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-pink-100 cursor-pointer transform hover:scale-105 hover:-rotate-1" 
                data-index="{{$index}}"
@@ -316,14 +264,14 @@
   </div>
 
   <!-- Edit/Delete Modal -->
-  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div class="bg-white rounded-3xl cute-shadow p-8 w-96 max-w-lg border-4 border-pink-200">
-      <h2 class="text-3xl font-bold text-center mb-6 girly-text">
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl cute-shadow p-4 md:p-8 w-full max-w-lg border-4 border-pink-200 max-h-screen overflow-y-auto">
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-4 md:mb-6 girly-text">
         <i class="fas fa-edit mr-2"></i>
         Edit Precious Card
         <i class="fas fa-sparkles ml-2"></i>
       </h2>
-      <div class="space-y-4">
+      <div class="space-y-3 md:space-y-4">
         <div>
           <label class="block text-sm font-bold text-pink-600 mb-2">
             <i class="fas fa-users mr-1"></i> Group
@@ -377,7 +325,83 @@
      * - Auto-complete for group names during upload
      * - Edit/Delete modal for existing photocards
      * - Dynamic UI updates and user interactions
+     * - Mobile responsive navigation
      */
+
+    // Mobile menu functionality
+    function initializeMobileMenu() {
+      const mobileToggle = document.getElementById('mobileMenuToggle');
+      const closeSidebarBtn = document.getElementById('closeSidebar');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      
+      // Ensure sidebar starts closed on mobile
+      if (window.innerWidth < 768) {
+        sidebar.classList.add('sidebar-closed');
+        sidebar.classList.remove('sidebar-open');
+        overlay.classList.add('hidden');
+      }
+      
+      function openSidebar() {
+        console.log('Opening sidebar'); // Debug log
+        sidebar.classList.remove('sidebar-closed', '-translate-x-full');
+        sidebar.classList.add('sidebar-open');
+        overlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+      
+      function closeSidebar() {
+        console.log('Closing sidebar'); // Debug log
+        sidebar.classList.remove('sidebar-open');
+        sidebar.classList.add('sidebar-closed', '-translate-x-full');
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+      
+      if (mobileToggle) {
+        mobileToggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSidebar();
+        });
+      }
+      
+      if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeSidebar();
+        });
+      }
+      
+      if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+      }
+      
+      // Close sidebar when clicking filter items on mobile
+      if (sidebar) {
+        sidebar.addEventListener('click', (e) => {
+          if (window.innerWidth < 768 && (e.target.type === 'checkbox')) {
+            // Small delay to allow checkbox to update before closing
+            setTimeout(closeSidebar, 300);
+          }
+        });
+      }
+      
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) {
+          // Desktop - reset sidebar
+          sidebar.classList.remove('sidebar-closed', 'sidebar-open', '-translate-x-full');
+          overlay.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+        } else {
+          // Mobile - ensure sidebar is closed
+          sidebar.classList.remove('sidebar-open');
+          sidebar.classList.add('sidebar-closed', '-translate-x-full');
+          overlay.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+        }
+      });
+    }
 
     // Global state variables for filter management
     let currentEditIndex = -1;  // Index of card being edited (-1 means no card selected)
@@ -531,28 +555,6 @@
       form.classList.toggle('hidden');
     }
 
-    /**
-     * Toggle mobile sidebar visibility
-     */
-    function toggleMobileSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('mobileOverlay');
-      
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('hidden');
-    }
-
-    /**
-     * Close mobile sidebar
-     */
-    function closeMobileSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('mobileOverlay');
-      
-      sidebar.classList.remove('open');
-      overlay.classList.add('hidden');
-    }
-
     // Auto-complete functionality for group names during upload
     document.getElementById('groupInput').addEventListener('input', function(e) {
       const input = e.target.value.toLowerCase();
@@ -680,6 +682,11 @@
         });
       }
     }
+
+    // Initialize mobile menu and other functionality when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeMobileMenu();
+    });
   </script>
 </body>
 </html>
